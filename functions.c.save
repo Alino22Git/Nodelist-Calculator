@@ -1,0 +1,226 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "header.h"
+
+void printTerm(struct node* head) {
+    struct node* temp = head;
+    while(temp != NULL) {
+        if(temp->type!=number_type) {
+            printf("%c", temp->operator);
+        } else {
+            printf("%d", temp->number);
+        }
+        temp = temp->next;
+    }
+}
+
+struct node *inputToNode(const char *input) {
+    int number = atoi(input);
+    if (number != 0) {
+        return createNumberNode(number);
+    }
+    if (input[0] == '0') {
+        return createNumberNode(0);
+    }
+    if (strcmp(input, "(") == 0 ||
+            strcmp(input, ")") == 0) {
+        return createParenthesisNode(input[0]);
+    }
+
+    if (strcmp(input, "+") == 0 ||
+            strcmp(input, "-") == 0 ||
+            strcmp(input, "*") == 0 ||
+            strcmp(input, "/") == 0) {
+        return createOperatorNode(input[0]);
+    }
+    return NULL;
+}
+
+struct node* createParenthesisNode(char operator) {
+    struct node* newNode = (struct node*)malloc(sizeof(struct node));
+    if (newNode == NULL) {
+        printf("Speicherfehler!\n");
+        exit(1);
+    }
+    newNode->operator=operator;
+    newNode->type = parenthesis_type;
+    newNode->next = NULL;
+    return newNode;
+}
+
+struct node* createOperatorNode(char operator) {
+    struct node* newNode = (struct node*)malloc(sizeof(struct node));
+    if (newNode == NULL) {
+        printf("Speicherfehler!\n");
+        exit(1);
+    }
+    newNode->operator=operator;
+    newNode->type = operator_type;
+    newNode->next = NULL;
+    return newNode;
+}
+
+struct node* createNumberNode(int number) {
+    struct node* newNode = (struct node*)malloc(sizeof(struct node));
+    if (newNode == NULL) {
+        printf("Speicherfehler!\n");
+        exit(1);
+    }
+    newNode->number=number;
+    newNode->type = number_type;
+    newNode->next = NULL;
+    return newNode;
+}
+
+struct node* addLast(struct node *head, struct node *newTail) {
+    if (head == NULL) {
+        return newTail;
+    }
+
+    struct node* temp = head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newTail;
+    return head;
+}
+
+struct node* findLastParenthesisClosed(struct node *head) {
+    struct node* temp = head;
+    struct node* last = NULL;
+
+    while(temp != NULL) {
+        if(temp->type==parenthesis_type && temp->operator==')') {
+            last = temp;
+        }
+        temp = temp->next;
+    }
+    return last;
+}
+
+struct node* findFirstPointOperator(struct node *startNode) {
+    struct node* temp = startNode;
+
+    while(temp != NULL) {
+        if(temp->type==operator_type&&(temp->operator=='*' || temp->operator=='/')) {
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+struct node* findFirstDashOperator(struct node *startNode) {
+    struct node* temp = startNode;
+
+    while(temp != NULL) {
+        if(temp->type==operator_type&&(temp->operator=='+' || temp->operator=='-')) {
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+struct node* findPrevious(struct node *head, struct node *node) {
+    struct node* temp = head;
+
+    while(temp != NULL) {
+        if(temp->next==node) {
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+struct node *doMath(struct node *head) {
+    struct node* temp=head;
+    struct node* help = NULL;
+// HIER FUNKTION "AUFLÖSEN" BENUTZEN UM KLAMMER AUFZULÖSEN UND
+//    FREIZUGEBEN -> FINDLAST PAREN.. UND WENN JA DANN PREVIOUSE(PREVIOUSE(... um zu schauen ob (4) NICHTS RETOURNIEREN!!
+
+
+    while(temp != NULL) {
+        if(temp->operator=='(') {
+            if(temp->next->next->operator==')') {
+                help=temp->next->next->next; // NULL gespeichert
+                free(temp->next->next);      //2.Klammer
+                temp->next->next = help;     //nach 3 -> NULL
+
+                if(findPrevious(head,temp)!=NULL) {
+                    temp=findPrevious(head,temp);//temp ist das vorher
+                    help=temp->next->next;       //3 gespeichert
+                    free(temp->next);            //1.Klammer
+                    temp->next=help;
+                } else {
+                    temp=temp->next;
+                    free(findPrevious(head,temp));
+                    head=temp;
+                }
+            }
+        }
+        temp = temp->next;
+    }
+//printf("test2:");printTerm(head);
+//    temp = findLastParenthesisClosed(head);
+//    if(temp!=NULL){
+//        if(findPrevious(head,findPrevious(head,temp))->operator=='('){
+//        struct node* par = findPrevious(head,findPrevious(head,temp));
+//        findPrevious(head,temp)->next=temp->next;
+//        free(temp);//zweite Klammer
+//        findPrevious(head,par)->next=par->next;
+//        free(par);//Die erste Klammer
+//
+//        }
+//    }
+//    printf("\nerg:");
+//    printTerm(head);
+//----------------------
+
+    temp = findLastParenthesisClosed(head);
+    if(temp!=NULL) {
+        while(temp->operator!='(') {
+            temp=findPrevious(head,temp);
+            if(temp)
+        }
+    } else {
+        temp=head;
+    }
+//----------------------
+
+    if(findFirstPointOperator(temp)!=NULL) {
+        fixNodes(findPrevious(head,findFirstPointOperator(temp)), findFirstPointOperator(temp));
+    } else if(findFirstDashOperator(temp)!=NULL){
+        fixNodes(findPrevious(head,findFirstDashOperator(temp)), findFirstDashOperator(temp));
+    }
+    return head;
+}
+
+void fixNodes(struct node *beg,struct node *end) {
+    switch (end->operator) {
+    case '+':
+        beg->number+=end->next->number;
+        break;
+    case '-':
+        beg->number-=end->next->number;
+        break;
+    case '*':
+        beg->number*=end->next->number;
+        break;
+    case '/':
+        if(end->next->number!=0) {
+            beg->number/=end->next->number;
+        }
+        break;
+    default:
+        printf("Fehler");
+        break;
+    }
+    beg->next = end->next->next;
+    free(end->next);
+    free(end);
+}
+
+

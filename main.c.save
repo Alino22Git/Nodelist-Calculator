@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "header.h"
+
+int main(void) {
+    char input[10]= {0};
+    struct node* head = NULL;
+
+    do {
+        printf("\nInput: ");
+        scanf("%s", &input[0]);
+
+        if(input[0]!='=') {
+            head=addLast(head,inputToNode(input));
+            printf("\nTerm: ");
+            printTerm(head);
+        }
+    } while(input[0]!='=');
+
+    do {
+        head=doMath(head);
+        printf("\nResulting term: ");
+        printTerm(head);
+    } while(head->next!=NULL);
+    return 0;
+}
+
+7
++
+2
++
+12
++
+8
+=

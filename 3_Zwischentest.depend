@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1670371515 source:c:\users\hajra\desktop\3_zwischentest\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"header.h"
+
+1670371497 c:\users\hajra\desktop\3_zwischentest\header.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1670371552 source:c:\users\hajra\desktop\3_zwischentest\functions.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"header.h"
+

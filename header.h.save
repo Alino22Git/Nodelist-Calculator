@@ -1,0 +1,26 @@
+enum node_type {
+    number_type = 1, operator_type, parenthesis_type
+};
+
+struct node {
+    char operator;
+    int number;
+    enum node_type type;
+    struct node* next;
+};
+
+void printTerm(struct node* temp);
+struct node* doMath(struct node *head);
+void fixNodes(struct node *beg,struct node *end);
+
+struct node* inputToNode(const char *input);
+struct node* createParenthesisNode(char operator);
+struct node* createOperatorNode(char operator);
+struct node* createNumberNode(int number);
+struct node* addLast(struct node *head, struct node *newNode);
+struct node* findPrevious(struct node *head, struct node *node);
+struct node* findLastParenthesisOpen(struct node *head);
+struct node* findLastParenthesisClosed(struct node *head)
+struct node* findFirstPointOperator(struct node *startNode);
+struct node* findFirstDashOperator(struct node *startNode);
+
